@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickForm - Manipulação de formulários simples sem backend</title>
+    <meta name="author" content="Bernardino Leite">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .code-block {
+            background-color: #1e293b;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .form-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* Loading Spinner Styles */
+        .loader {
+            display: none;
+            border: 4px solid #e2e8f0;
+            /* Light gray for better contrast */
+            border-top: 4px solid #6366f1;
+            /* Primary color for spinning effect */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading .loader {
+            display: block;
+        }
+
+        .loading button[type="submit"] {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-success .modal-content {
+            border-top: 4px solid #6366f1;
+        }
+
+        .modal-error .modal-content {
+            border-top: 4px solid #ef4444;
+        }
+
+        .modal-content button {
+            margin-top: 16px;
+            padding: 8px 16px;
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-content button:hover {
+            background-color: #4f46e5;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 text-dark">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="gradient-bg text-white p-2 rounded-lg mr-3">
+                        <i class="fas fa-bolt text-xl"></i>
+                    </div>
+                    <h1
+                        class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        QuickForm</h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#features" class="font-medium hover:text-primary transition">Características</a>
+                    <a href="#how-it-works" class="font-medium hover:text-primary transition">Como funciona</a>
+                    <a href="#documentation" class="font-medium hover:text-primary transition">Documentação</a>
+                </nav>
+                <button class="md:hidden text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-12 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Turbine seus formulários sem código de backend</h1>
+                <p class="text-xl mb-8 opacity-90">O QuickForm permite que você receba formulários enviados diretamente
+                    no seu e-mail sem qualquer código no servidor. Simples, elegante e poderoso.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#register"
+                        class="bg-white text-primary font-bold py-3 px-6 rounded-lg text-center hover:bg-gray-100 transition">Get
+                        Started</a>
+                    <a href="#how-it-works"
+                        class="border-2 border-white text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-white hover:bg-opacity-10 transition">Como
+                        funciona</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="relative w-full max-w-md">
+                    <div class="absolute -top-10 -left-10 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float">
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white bg-opacity-5 rounded-full animate-float"
+                        style="animation-delay: 2s;"></div>
+                    <div class="relative bg-white rounded-xl p-8 form-shadow">
+                        <h3 class="text-dark text-xl font-bold mb-6">Cadastre seu e-mail</h3>
+                        <form id="register" class="space-y-4">
+                            <div>
+                                <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Seu
+                                    e-mail</label>
+                                <input type="email" id="email"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-primary"
+                                    placeholder="seu@example.com" required>
+                            </div>
+                            <button type="submit"
+                                class="w-full gradient-bg text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition">Obter
+                                Meu EndPoint</button>
+                            <div class="loader mt-4"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            </ div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Por que escolher o QuickForm</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">A maneira mais simples de lidar com envios de
+                    formulários sem
+                    escrever nenhum código de backend.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card bg-gray-50 p-8 rounded-xl transition duration-300">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <i class="fas fa-server text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Nenhum backend necessário</h3>
+                    <p class="text-gray-600">Esqueça a configuração de servidores ou a criação de endpoints de API. O
+                        QuickForm cuida
+                        de tudo para você.</p>
+                </div>
+                <div class="feature-card bg-gray-50 p-8 rounded-xl transition duration-300">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Não é necessário CAPTCHA</h3>
+                    <p class="text-gray-600"> uses proteção avançada contra spam para que você não precise incomodar os
+                        usuários com
+                        CAPTCHAs.</p>
+                </div>
+                <div class="modal modal-error" id="error-modal">
+                    <div class="modal-content">
+                        <h3 class="text-xl font-bold text-red-600 mb-4">Erro</h3>
+                        <p id="error-message" class="text-gray-600"></p>
+                        <button onclick="closeModal('error-modal')">Fechar</button>
+                    </div>
+                </div>
+                <div class="modal modal-success" id="success-modal">
+                    <div class="modal-content">
+                        <h3 class="text-xl font-bold text-primary mb-4">Sucesso</h3>
+                        <p id="success-message" class="text-gray-600"></p>
+                        <button onclick="closeModal('success-modal')">Fechar</button>
+                    </div>
+                </div>
+                <div class="feature-card bg-gray-50 p-8 rounded-xl transition duration-300">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <i class="fas fa-redo text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Redirecionamentos personalizados</h3>
+                    <p class="text-gray-600">Redirecionamento personalizado Redirecione facilmente os usuários após o
+                        envio para páginas de agradecimento ou qualquer outro lugar.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Como funciona o QuickForm</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Comece em apenas algumas etapas
+                    simples</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <span class="font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Cadastre seu e-mail</h3>
+                    <p class="text-gray-600">Cadastre-se com seu endereço de e-mail para obter seu URL de endpoint
+                        exclusivo.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <span class="font-bold">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Adicione ao seu formulário</h3>
+                    <p class="text-gray-600">Defina o atributo de ação do seu formulário HTML para o seu ponto de
+                        extremidade do QuickForm.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <div class="gradient-bg text-white p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                        <span class="font-bold">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Receber envios</h3>
+                    <p class="text-gray-600">Receba os dados do formulário diretamente na sua caixa de entrada em tempo
+                        real.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="documentation" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Documentação e exemplos</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Aprenda como integrar o QuickForm ao seu site
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6">Configuração básica do formulário</h3>
+                    <div class="code-block p-6 rounded-lg mb-4">
+                        <pre class="text-gray-200 overflow-x-auto"><code>&lt;form action="https://quickform.co/seu-email@exemplo.com" method="POST"&gt;
+    &lt;input type="text" name="name" placeholder="Your Name" required&gt;
+    &lt;input type="email" name="email" placeholder="Your Email" required&gt;
+    &lt;textarea name="message" placeholder="Your Message"&gt;&lt;/textarea&gt;
+    &lt;button type="submit"&gt;Send Message&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                    <p class="text-gray-600">Substitua "seu-email@exemplo.com" pelo e-mail que você cadastrou no
+                        QuickForm.</p>
+                </div>
+
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6">Adicionando campos ocultos</h3>
+                    <div class="code-block p-6 rounded-lg mb-4">
+                        <pre class="text-gray-200 overflow-x-auto"><code>&lt;form action="https://quickform.co/your-email@example.com" method="POST"&gt;
+    &lt;input type="hidden" name="_subject" value="New Contact Form Submission"&gt;
+    &lt;input type="text" name="name" placeholder="Your Name"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                    <p class="text-gray-600">Use "_subject" para personalizar o assunto do e-mail.</p>
+                </div>
+
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6">Redirecionamento personalizado após o envio</h3>
+                    <div class="code-block p-6 rounded-lg mb-4">
+                        <pre class="text-gray-200 overflow-x-auto"><code>&lt;form action="https://quickform.co/your-email@example.com" method="POST"&gt;
+    &lt;input type="hidden" name="_next" value="https://yourwebsite.com/thank-you"&gt;
+    &lt;input type="text" name="name" placeholder="Your Name"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                    <p class="text-gray-600">Use "_next" para personalizar o local de redirecionamento, por padrão
+                        redirecionamos para o endereço de origem</p>
+                </div>
+
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6">Desativando CAPTCHA automático</h3>
+                    <div class="code-block p-6 rounded-lg mb-4">
+                        <pre class="text-gray-200 overflow-x-auto"><code>&lt;form action="https://quickform.co/your-email@example.com" method="POST"&gt;
+    &lt;input type="hidden" name="_captcha" value="false"&gt;
+    &lt;input type="text" name="name" placeholder="Your Name"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                    <p class="text-gray-600">Por padrão, o QuickForm inclui proteção CAPTCHA. Defina "_captcha" como
+                        "false" para desativá-la.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Pronto para simplificar seus formulários?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">Comece a usar o QuickForm hoje mesmo e diga adeus
+                aos problemas com o processamento de formulários no backend.</p>
+            <a href="#register"
+                class="inline-block bg-white text-primary font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition">Cadastre-se
+                Seu e-mail agora</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-6 md:mb-0">
+                    <div class="gradient-bg text-white p-2 rounded-lg mr-3">
+                        <i class="fas fa-bolt text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold">QuickForm</h2>
+                </div>
+                <div class="flex space-x-6 mb-6 md:mb-0">
+
+                    <!-- <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-github text-xl"></i>
+                    </a> -->
+                    <a href="https://portfolioleite.netlify.app" class="text-gray-400 hover:text-white transition">
+                        <i class="fas fa-briefcase text-xl"></i>
+                        <span class="ml-2">Desenvolvido por Bernardino Leite</span>
+                    </a>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    © QuickForm 2023. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const url = "http://localhost:2908/quickform";
+
+        // Modal functions
+        function showModal(type, message) {
+            const modal = document.getElementById(`${type}-modal`);
+            const messageElement = document.getElementById(`${type}-message`);
+            messageElement.textContent = message;
+            modal.classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+        }
+
+        document.getElementById('register').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = this;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value;
+
+            // Show loading state
+            form.classList.add('loading');
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(url + "/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    showModal('error', `Erro: ${error.error || 'Falha ao registrar o email.'}`);
+                    return;
+                }
+
+                // Success
+                const result = await response.json();
+                showModal('success', `✅ Obrigado por se registrar! Verifique seu email para acessar seu endpoint.`);
+
+                form.reset();
+
+            } catch (error) {
+                showModal('error', "❌ Ocorreu um erro ao registrar. Tente novamente mais tarde.");
+            } finally {
+                // Hide loading state
+                form.classList.remove('loading');
+                submitButton.disabled = false;
+            }
+        });
+
+        // Smooth scroll for anchors
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
